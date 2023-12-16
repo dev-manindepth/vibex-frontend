@@ -18,6 +18,7 @@
     "baseUrl": ".",
     "paths": {
       "@services/*": ["./src/services/*"],
+      "@hooks/*": ["./src/hooks/*"],
       "@interfaces/*": ["./src/interfaces/*"],
       "@pages/*": ["./src/pages/*"],
       "@components/*": ["./src/components/*"],
