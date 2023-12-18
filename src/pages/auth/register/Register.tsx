@@ -5,6 +5,10 @@ import Button from '@components/button/Button';
 import { Utils } from '@services/utils/utils.service';
 import { authService } from '@services/api/auth/auth.service';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import useSessionStorage from '@hooks/useSessionStorage';
+import useLocalStorage from '@hooks/useLocalStorage';
+import { IUser } from '@interfaces/index';
 
 const Register = () => {
   const [username, setUsername] = useState('');
@@ -14,8 +18,12 @@ const Register = () => {
   const [alertType, setAlertType] = useState('');
   const [hasError, setHasError] = useState(false);
   const [responseMessage, setResponseMessage] = useState('');
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [user, setUser] = useState('');
+  const [user, setUser] = useState<IUser | null>(null);
+  const [setStoredUsername] = useLocalStorage('username', 'set');
+  const [setLoggedIn] = useLocalStorage('keepLoggedIn', 'set');
+  const [pageReload] = useSessionStorage('pageReload', 'set');
+
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const registerUser = async (event: React.SyntheticEvent) => {
@@ -25,12 +33,10 @@ const Register = () => {
       const avatarColor = Utils.avatarColor();
       const avatarImage = Utils.generateAvatar(username.charAt(0).toUpperCase(), avatarColor);
       const response = await authService.signup({ username, email, password, avatarColor, avatarImage });
-      setLoading(false);
-      setHasError(false);
-      setAlertType('success');
-      setUser(response.data.user);
-      setResponseMessage(response.data.message);
       setLoggedIn(true);
+      setStoredUsername(username);
+      setAlertType('success');
+      Utils.dispatchUser(response, pageReload, dispatch, setUser);
     } catch (err: any) {
       setLoading(false);
       setHasError(true);
@@ -84,7 +90,6 @@ const Register = () => {
             handleChange={(event) => setPassword(event.target.value)}
           />
         </div>
-        <p>{loggedIn}</p>
         <Button
           className="auth-button button"
           label={`${loading ? 'SIGNUP IN PROGRESS...' : 'SIGN UP'}`}

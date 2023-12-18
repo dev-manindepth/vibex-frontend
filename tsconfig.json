@@ -20,6 +20,7 @@
       "@services/*": ["./src/services/*"],
       "@hooks/*": ["./src/hooks/*"],
       "@interfaces/*": ["./src/interfaces/*"],
+      "@redux-toolkit/*": ["./src/redux-toolkit/*"],
       "@pages/*": ["./src/pages/*"],
       "@components/*": ["./src/components/*"],
       "@assets/*": ["./src/assets/*"],
