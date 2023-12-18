@@ -5,16 +5,26 @@ import Button from '@components/button/Button';
 import { FaArrowRight } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import { authService } from '@services/api/auth/auth.service';
+import useLocalStorage from '@hooks/useLocalStorage';
+import useSessionStorage from '@hooks/useSessionStorage';
+import { useDispatch } from 'react-redux';
+import { IUser } from '@interfaces/index';
+import { Utils } from '@services/utils/utils.service';
 
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [user, setUser] = useState('');
+  const [user, setUser] = useState<IUser | null>(null);
   const [keepLoggedIn, setKeepLoggedIn] = useState(false);
   const [loading, setLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [responseMessage, setResponseMessage] = useState('');
   const [alertType, setAlertType] = useState('');
+  const [setStoredUsername] = useLocalStorage('username', 'set');
+  const [setLoggedIn] = useLocalStorage('keepLoggedIn', 'set');
+  const [pageReload] = useSessionStorage('pageReload', 'set');
+
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const loginUser = async (event: React.SyntheticEvent) => {
@@ -23,12 +33,12 @@ const Login = () => {
 
     try {
       const result = await authService.signin({ username, password });
+      setLoggedIn(keepLoggedIn);
       setHasError(false);
       setAlertType('success');
       setLoading(false);
-      setUser(result.data.user);
-      console.log('login successful', result);
       setResponseMessage(result.data.message);
+      Utils.dispatchUser(result, pageReload, dispatch, setUser);
     } catch (err: any) {
       setLoading(false);
       setHasError(true);

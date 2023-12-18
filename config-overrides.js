@@ -7,6 +7,7 @@ module.exports = function override(config) {
       ...config.alias,
       '@services': path.resolve(__dirname, 'src/services'),
       '@hooks': path.resolve(__dirname, 'src/hooks'),
+      '@redux-toolkit': path.resolve(__dirname, 'src/redux-toolkit'),
       '@interfaces': path.resolve(__dirname, 'src/interfaces'),
       '@pages': path.resolve(__dirname, 'src/pages'),
       '@components': path.resolve(__dirname, 'src/components'),
