@@ -1,4 +1,4 @@
-import React, {  useState } from 'react';
+import React, { useState } from 'react';
 import './ForgotPassword.scss';
 import Input from '@components/input/Input';
 import Button from '@components/button/Button';
