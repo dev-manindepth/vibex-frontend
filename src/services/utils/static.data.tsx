@@ -99,7 +99,7 @@ export const feelingsList = [
   }
 ];
 
-export const fontAwesomeIcons = {
+export const fontAwesomeIcons: { [key: string]: JSX.Element } = {
   FaNewspaper: <FaNewspaper className="icon" />,
   FaComments: <FaComments className="icon" />,
   FaUsers: <FaUsers className="icon" />,

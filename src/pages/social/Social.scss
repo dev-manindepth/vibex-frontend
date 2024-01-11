@@ -1,0 +1,12 @@
+.dashboard{
+  display: flex;
+  &-sidebar{
+    flex: 2;
+    max-width: 15%;
+  }
+  &-content{
+    flex: 6;
+    height: 100vh;
+    border: 1px dotted teal;
+  }
+}

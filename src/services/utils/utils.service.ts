@@ -1,5 +1,7 @@
 import { addUser, clearUser } from '@redux-toolkit/reducers/user/user.reducer';
 import { avatarColors } from './static.data';
+import { APP_ENVIRONMENT, BASE_ENDPOINT } from '@services/axios';
+import { ISettings } from '@interfaces/index';
 
 export class Utils {
   static avatarColor() {
@@ -45,5 +47,35 @@ export class Utils {
     deleteStorageUsername();
     deleteSessionPageReload();
     setLoggedIn(false);
+  }
+
+  static appEnvironment() {
+    if (APP_ENVIRONMENT === 'local') {
+      return 'LOCAL';
+    } else if (APP_ENVIRONMENT === 'development') {
+      return 'DEV';
+    } else if (APP_ENVIRONMENT === 'staging') {
+      return 'STG';
+    }
+  }
+
+  static generateString(length: number) {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = ' ';
+    const charactersLength = characters.length;
+    for (let i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+  }
+  static mapSettingsDropdownItems(setSettings: (settings: ISettings[]) => void) {
+    const items = [];
+    const item = {
+      topText: 'My Profile',
+      subText: 'View personal profile'
+    };
+    items.push(item);
+    setSettings(items);
+    return items;
   }
 }

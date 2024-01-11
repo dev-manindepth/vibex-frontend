@@ -1,10 +1,22 @@
 import '@pages/auth/auth-tabs/AuthTabs.scss';
 import backgroundImage from '../../../assets/images/backgroup.webp';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Register, Login } from '@pages/auth';
+import useLocalStorage from '@hooks/useLocalStorage';
+import { useNavigate } from 'react-router-dom';
+import { Utils } from '@services/utils/utils.service';
 
 const AuthTabs = () => {
   const [type, setType] = useState('Sign In');
+  const keepLoggedIn = useLocalStorage('keepLoggedIn', 'get');
+  const [environment, setEnvironment] = useState<string | undefined>('');
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const env = Utils.appEnvironment();
+    setEnvironment(env);
+    if (keepLoggedIn) navigate('/app/social/vibes');
+  }, [keepLoggedIn, navigate]);
   return (
     <div className="container-wrapper" style={{ backgroundImage: `url(${backgroundImage})`, height: '100%' }}>
       <div className="environment">DEV</div>

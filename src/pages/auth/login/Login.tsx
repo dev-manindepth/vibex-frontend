@@ -43,14 +43,14 @@ const Login = () => {
       setLoading(false);
       setHasError(true);
       setAlertType('error');
-      setResponseMessage('An error occurred');
+      setResponseMessage(err.message);
     }
   };
 
   useEffect(() => {
     if (loading && !user) return;
     if (user) {
-      navigate('/app/social/vibe');
+      navigate('/app/social/vibes');
     }
   }, [loading, user, navigate]);
   return (
