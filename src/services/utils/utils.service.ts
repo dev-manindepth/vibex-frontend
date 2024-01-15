@@ -1,7 +1,11 @@
 import { addUser, clearUser } from '@redux-toolkit/reducers/user/user.reducer';
 import { avatarColors } from './static.data';
-import { APP_ENVIRONMENT, BASE_ENDPOINT } from '@services/axios';
-import { ISettings } from '@interfaces/index';
+import { APP_ENVIRONMENT } from '@services/axios';
+import { ISettings, ToastType } from '@interfaces/index';
+import { addNotifications, clearNotification } from '@redux-toolkit/reducers/notifications/notification.reducer';
+import { Dispatch } from '@reduxjs/toolkit';
+
+export type DeepCloneable = { [key: string]: any } | any[];
 
 export class Utils {
   static avatarColor() {
@@ -26,7 +30,7 @@ export class Utils {
     return canvas.toDataURL('image/png');
   }
 
-  static dispatchUser(result: any, pageReload: (value: boolean) => void, dispatch: any, setUser: (user: any) => void) {
+  static dispatchUser(result: any, pageReload: (value: boolean) => void, dispatch: Dispatch, setUser: (user: any) => void) {
     pageReload(true);
     dispatch(addUser({ token: result.data.token, profile: result.data.user }));
     setUser(result.data.user);
@@ -38,17 +42,24 @@ export class Utils {
     deleteSessionPageReload,
     setLoggedIn
   }: {
-    dispatch: any;
+    dispatch: Dispatch;
     deleteStorageUsername: () => void;
     deleteSessionPageReload: () => void;
     setLoggedIn: (value: boolean) => void;
   }) {
     dispatch(clearUser());
+    dispatch(clearNotification());
     deleteStorageUsername();
     deleteSessionPageReload();
     setLoggedIn(false);
   }
 
+  static dispatchNotification(message: string, type: ToastType, dispatch: Dispatch) {
+    dispatch(addNotifications({ message, type }));
+  }
+  static dispatchClearNotification(dispatch: Dispatch) {
+    dispatch(clearNotification());
+  }
   static appEnvironment() {
     if (APP_ENVIRONMENT === 'local') {
       return 'LOCAL';
@@ -77,5 +88,12 @@ export class Utils {
     items.push(item);
     setSettings(items);
     return items;
+  }
+  static appImageUrl(imageVersion: string | number, imgId: string | number) {
+    if (typeof imageVersion === 'string' && typeof imgId === 'string') {
+      imageVersion = imageVersion.replace(/['"]+/g, '');
+      imgId = imgId.replace(/['"]+/g, '');
+    }
+    return `https://res.clodinary.com/${process.env.REACT_APP_CLOUD_NAME}/image/upload/v${imageVersion}/${imgId}`;
   }
 }
