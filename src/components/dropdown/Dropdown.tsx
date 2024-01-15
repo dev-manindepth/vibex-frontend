@@ -11,7 +11,7 @@ interface IDropdown {
   style: React.CSSProperties;
   height: number;
   onMarkAsRead?: (arg: any) => void;
-  onDeleteNotification?: (arg: any) => void;
+  onDeleteNotification?: (arg: any) => Promise<void>;
   onLogout?: () => void;
   onNavigate?: () => void;
 }
