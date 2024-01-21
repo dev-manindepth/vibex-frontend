@@ -1,3 +1,4 @@
+import { IFeelingData } from '@interfaces/index';
 import blessed from '../../assets/feelings/blessed.jpg';
 import excited from '../../assets/feelings/excited.jpg';
 import happy from '../../assets/feelings/happy.jpg';
@@ -76,7 +77,7 @@ export const sideBarItems = [
   }
 ];
 
-export const feelingsList = [
+export const feelingsList: IFeelingData[] = [
   {
     index: 0,
     name: 'happy',
@@ -185,7 +186,7 @@ export const emptyPostData = {
   username: '',
   email: '',
   avatarColor: '',
-  commentsCount: '',
+  commentsCount: 0,
   reactions: [],
   imgVersion: '',
   imgId: '',

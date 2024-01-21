@@ -96,4 +96,21 @@ export class Utils {
     }
     return `https://res.clodinary.com/${process.env.REACT_APP_CLOUD_NAME}/image/upload/v${imageVersion}/${imgId}`;
   }
+  static removeDuplicates(array: any[], key: string) {
+    const seen = new Set();
+    return array.filter((item) => {
+      const value = item[key];
+      if (!seen.has(value)) {
+        seen.add(value);
+        return true;
+      }
+      return false;
+    });
+  }
+  static checkIfUserIsBlocked(blocked: string[] | undefined, userId: string) {
+    return blocked && blocked.some((blockedId) => blockedId == userId);
+  }
+  static checkIfUserIsFollowed(userFolloweers: any[], postCreatorId: string, userId: string) {
+    return userFolloweers.some((user) => user._id == postCreatorId || postCreatorId == userId);
+  }
 }
