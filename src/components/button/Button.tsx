@@ -1,5 +1,5 @@
 interface IButton {
-  label: string;
+  label: any;
   className: string;
   disabled: boolean;
   handleClick?: () => void;

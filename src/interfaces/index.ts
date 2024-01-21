@@ -155,3 +155,43 @@ export interface INotificationDialog {
   reaction: string;
   senderName: string;
 }
+
+export interface IPostData {
+  _id: string;
+  post: any;
+  bgColor: string;
+  privacy: string;
+  feelings: string;
+  gifUrl: string;
+  profilePicture: string;
+  image: string;
+  userId: string;
+  username: string;
+  email: string;
+  avatarColor: string;
+  commentsCount: number;
+  reactions: IReaction[];
+  imgVersion: string;
+  imgId: string;
+  createdAt: string;
+}
+export interface IPostFormData {
+  post: string;
+  bgColor: string;
+  privacy: string;
+  feelings: string | undefined;
+  gifUrl: string | undefined;
+  profilePicture: string | undefined;
+  image: string;
+}
+export interface IFeelingData {
+  index?: number;
+  name?: string;
+  image?: string;
+}
+
+export interface IPrivacy {
+  topText: string;
+  subText: string;
+  icon: React.ReactNode;
+}
