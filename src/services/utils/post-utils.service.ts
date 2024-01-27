@@ -104,10 +104,57 @@ export class PostUtils {
       PostUtils.dispatchNotification(err.response.data.message, 'error', setApiResonse, setLoading, dispatch);
     }
   }
+  static async sendUpdatePostWithImageRequest(
+    fileResult: any,
+    postId: string,
+    postData: IPostFormData,
+    setApiResonse: (response: any) => void,
+    setLoading: (loading: boolean) => void,
+    dispatch: Dispatch
+  ) {
+    try {
+      postData.image = fileResult;
+      postData.gifUrl = '';
+      (postData.imgId = ''), (postData.imgVersion = '');
+      const response = await postService.updatePostWithImage(postId, postData);
+      if (response) {
+        PostUtils.dispatchNotification(response.data.message, 'success', setApiResonse, setLoading, dispatch);
+        setTimeout(() => {
+          setApiResonse('success');
+          setLoading(false);
+        }, 3000);
+        PostUtils.clostPostModal(dispatch);
+      }
+    } catch (error: any) {
+      PostUtils.dispatchNotification(error.response.data.message, 'error', setApiResonse, setLoading, dispatch);
+    }
+  }
+
+  static async sendUpdatePostRequest(
+    postId: string,
+    postData: IPostFormData,
+    setApiResonse: (response: any) => void,
+    setLoading: (loading: boolean) => void,
+    dispatch: Dispatch
+  ) {
+    try {
+      const response = await postService.updatePost(postId, postData);
+      if (response) {
+        PostUtils.dispatchNotification(response.data.message, 'success', setApiResonse, setLoading, dispatch);
+        setTimeout(() => {
+          setApiResonse('success');
+          setLoading(false);
+        }, 3000);
+        PostUtils.clostPostModal(dispatch);
+      }
+    } catch (error: any) {
+      PostUtils.dispatchNotification(error.response.data.message, 'error', setApiResonse, setLoading, dispatch);
+    }
+  }
   static checkPrivacy(post: IPostData, profile: IUser, following: any[]) {
-    const isPrivate = post.privacy === 'Private' && post.userId == profile._id;
+    const isPrivate = post.privacy === 'Private' && post.userId === profile._id;
     const isPublic = post.privacy === 'Public';
-    const isFollower = post.privacy == 'Followers' && Utils.checkIfUserIsFollowed(following, post.userId, profile._id);
+    const isFollower = post.privacy === 'Followers' && Utils.checkIfUserIsFollowed(following, post.userId, profile._id);
     return isPrivate || isPublic || isFollower;
   }
   static positionCursor(elementId: string) {

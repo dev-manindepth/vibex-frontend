@@ -35,6 +35,7 @@ const Login = () => {
       const result = await authService.signin({ username, password });
       setLoggedIn(keepLoggedIn);
       setHasError(false);
+      setStoredUsername(username);
       setAlertType('success');
       setLoading(false);
       setResponseMessage(result.data.message);

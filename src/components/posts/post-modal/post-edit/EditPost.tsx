@@ -1,28 +1,26 @@
 import PostWrapper from '@components/posts/modal-wrapper/PostWrapper';
 import { RootState } from '@redux-toolkit/store';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import '@components/posts/post-modal/post-add/AddPost.scss';
+import '@components/posts/post-modal/post-edit/EditPost.scss';
 import ModalBoxContent from '../modal-box-content/ModalBoxContent';
 import { FaArrowLeft, FaTimes } from 'react-icons/fa';
-import { bgColors } from '@services/utils/static.data';
+import { bgColors, feelingsList } from '@services/utils/static.data';
 import ModalBoxSelection from '../modal-box-content/ModalBoxSelection';
 import Button from '@components/button/Button';
 import { PostUtils } from '@services/utils/post-utils.service';
 import { IPostFormData } from '@interfaces/index';
-import { closeModal, toggleGifModal } from '@redux-toolkit/reducers/modal/modal.reducer';
+import { addPostFeeling, closeModal, toggleGifModal } from '@redux-toolkit/reducers/modal/modal.reducer';
 import Giphy from '@components/giphy/Giphy';
 import { ImageUtils } from '@services/utils/image-utils.service';
 import { postService } from '@services/api/post/post.service';
 import Spinner from '@components/spinner/Spinner';
+import { Utils } from '@services/utils/utils.service';
 
-interface IAddPost {
-  selectedImage: File | undefined;
-}
-const AddPost: React.FC<IAddPost> = ({ selectedImage }) => {
+const EditPost = () => {
   const { profile } = useSelector((state: RootState) => state.user);
   const { gifModalIsOpen, feeling } = useSelector((state: RootState) => state.modal);
-  const { gifUrl, image, privacy } = useSelector((state: RootState) => state.post);
+  const { _id, gifUrl, image, privacy, post, feelings, bgColor, imgId, imgVersion } = useSelector((state: RootState) => state.post);
   const [loading, setLoading] = useState(false);
   const [apiResponse, setApiResponse] = useState<string>();
   const [postImage, setPostImage] = useState('');
@@ -35,7 +33,9 @@ const AddPost: React.FC<IAddPost> = ({ selectedImage }) => {
     feelings: '',
     gifUrl: '',
     profilePicture: '',
-    image: ''
+    image: '',
+    imgId: '',
+    imgVersion: ''
   });
   const [disable, setDisable] = useState(true);
   const dispatch = useDispatch();
@@ -43,6 +43,7 @@ const AddPost: React.FC<IAddPost> = ({ selectedImage }) => {
   const imageInputRef = useRef<HTMLDivElement | null>(null);
   const [selectedPostImage, setSelectedPostImage] = useState<File | null>();
   const counterRef = useRef<HTMLSpanElement | null>(null);
+
   const selectBackground = (bgColor: string) => {
     PostUtils.selectBackground(bgColor, postData, setTextAreaBackground, setPostData);
   };
@@ -66,9 +67,9 @@ const AddPost: React.FC<IAddPost> = ({ selectedImage }) => {
     PostUtils.clostPostModal(dispatch);
   };
   const removeSelectedImage = () => {
-    PostUtils.removeSelectedImage(postData, '', inputRef, dispatch, setSelectedPostImage, setPostImage, setPostData);
+    PostUtils.removeSelectedImage(postData, post, inputRef, dispatch, setSelectedPostImage, setPostImage, setPostData);
   };
-  const createPost = async () => {
+  const updatePost = async () => {
     setLoading(!loading);
     setDisable(!disable);
 
@@ -76,69 +77,116 @@ const AddPost: React.FC<IAddPost> = ({ selectedImage }) => {
       if (Object.keys(feeling).length) {
         postData.feelings = feeling.name!;
       }
+      if (postData.gifUrl || (postData.imgId && postData.imgVersion)) {
+        postData.bgColor = '#ffffff';
+      }
       postData.privacy = privacy || 'Public';
-      postData.gifUrl = gifUrl;
       postData.profilePicture = profile?.profilePicture;
-      if (selectedPostImage || selectedImage) {
-        let result;
-        if (selectedPostImage) {
-          result = await ImageUtils.readAsBase64(selectedPostImage);
-        }
-        if (selectedImage) {
-          result = await ImageUtils.readAsBase64(selectedImage);
-        }
-        const response = await PostUtils.sendPostWithImageRequest(result, postData, imageInputRef, setApiResponse, setLoading, dispatch);
-        if (response && response.data.message) {
-          PostUtils.clostPostModal(dispatch);
-        }
+      if (selectedPostImage) {
+        const result = await ImageUtils.readAsBase64(selectedPostImage);
+        await PostUtils.sendUpdatePostWithImageRequest(result, _id, postData, setApiResponse, setLoading, dispatch);
       } else {
-        const response = await postService.createPost(postData);
-        if (response) {
-          setApiResponse('success');
-          setLoading(false);
-          PostUtils.clostPostModal(dispatch);
-        }
+        await PostUtils.sendUpdatePostRequest(_id, postData, setApiResponse, setLoading, dispatch);
       }
     } catch (error: any) {
       PostUtils.dispatchNotification(error.response.data.message, 'error', setApiResponse, setLoading, dispatch);
     }
   };
+
+  const getFeeling = useCallback(
+    (name: string) => {
+      const feeling = feelingsList.find((feeling) => feeling.name === name);
+      dispatch(addPostFeeling({ feeling }));
+    },
+    [dispatch]
+  );
+  const postInputData = useCallback(() => {
+    setTimeout(() => {
+      if (imageInputRef.current) {
+        postData.post = post;
+        imageInputRef.current.textContent = post;
+        setPostData(postData);
+      }
+    });
+  }, [post, postData]);
+  const editableFields = useCallback(() => {
+    if (feelings) {
+      getFeeling(feelings);
+    }
+    if (bgColor) {
+      postData.bgColor = bgColor;
+      setPostData(postData);
+      setTextAreaBackground(bgColor);
+      setTimeout(() => {
+        if (inputRef.current) {
+          postData.post = post;
+          inputRef.current.textContent = post;
+          setPostData(postData);
+        }
+      });
+    }
+    if (gifUrl && !imgId) {
+      postData.gifUrl = gifUrl;
+      setPostImage(gifUrl);
+      postInputData();
+    }
+    if (imgId && !gifUrl) {
+      postData.imgId = imgId;
+      postData.imgVersion = imgVersion;
+      const imageUrl = Utils.getImage(imgId, imgVersion);
+      setPostImage(imageUrl);
+      postInputData();
+    }
+  }, [post, postData, getFeeling, postInputData]);
   useEffect(() => {
     if (gifUrl) {
+      postData.image = '';
+      setSelectedPostImage(null);
       setPostImage(gifUrl);
-      PostUtils.postInputData(imageInputRef, postData, '', setPostData);
+      PostUtils.postInputData(imageInputRef, postData, post, setPostData);
     } else if (image) {
       setPostImage(image);
-      PostUtils.postInputData(imageInputRef, postData, '', setPostData);
+      PostUtils.postInputData(imageInputRef, postData, post, setPostData);
     }
-  }, [gifUrl, image, postData]);
+    editableFields();
+  }, [gifUrl, image, postData, editableFields]);
 
   useEffect(() => {
     if (!loading && apiResponse === 'success') {
       dispatch(closeModal());
     }
-    setDisable(postData.post.length <= 0 && !postImage);
-  }, [loading, dispatch, apiResponse, postData, postImage]);
+    setDisable(post.length <= 0 && !postImage);
+  }, [loading, dispatch, apiResponse, post, postImage]);
   useEffect(() => {
     PostUtils.positionCursor('editable');
   });
+  useEffect(() => {
+    setTimeout(() => {
+      if (imageInputRef.current && imageInputRef.current.textContent?.length) {
+        if (counterRef.current) {
+          counterRef.current.textContent = `${MAX_NO_OF_CHARACTER - imageInputRef.current.textContent?.length}/100`;
+        }
+      } else if (inputRef.current && inputRef.current.textContent?.length) {
+        if (counterRef.current) {
+          counterRef.current.textContent = `${MAX_NO_OF_CHARACTER - inputRef.current.textContent?.length}/100`;
+        }
+      }
+    });
+  }, []);
   return (
     <>
       <PostWrapper>
         <div></div>
         {!gifModalIsOpen && (
-          <div
-            className="modal-box"
-            style={{ height: selectedPostImage || gifUrl || image || postData.gifUrl || postData.image ? '700px' : 'auto' }}
-          >
+          <div className="modal-box" style={{ height: selectedPostImage || gifUrl || image || imgId ? '700px' : 'auto' }}>
             {loading && (
               <div className="modal-box-loading">
-                <span>Posting...</span>
+                <span>Updating...</span>
                 <Spinner />
               </div>
             )}
             <div className="modal-box-header">
-              <h2>Create Post</h2>
+              <h2>Edit Post</h2>
               <button className="modal-box-header-cancel" onClick={closePostModal}>
                 X
               </button>
@@ -216,7 +264,7 @@ const AddPost: React.FC<IAddPost> = ({ selectedImage }) => {
             </span>
             <ModalBoxSelection setSelectedPostImage={(file: File) => setSelectedPostImage(file)} />
             <div className="modal-box-button">
-              <Button label="Post" className="post-button" disabled={disable} handleClick={createPost} />
+              <Button label="Update Post" className="post-button" disabled={disable} handleClick={updatePost} />
             </div>
           </div>
         )}
@@ -240,4 +288,4 @@ const AddPost: React.FC<IAddPost> = ({ selectedImage }) => {
   );
 };
 
-export default AddPost;
+export default EditPost;
