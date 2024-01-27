@@ -6,6 +6,8 @@ import { RootState } from '@redux-toolkit/store';
 import { Utils } from '@services/utils/utils.service';
 import Post from './post/Post';
 import { PostUtils } from '@services/utils/post-utils.service';
+import PostSkeleton from './post/PostSkeleton';
+import useLocalStorage from '@hooks/useLocalStorage';
 
 interface IPosts {
   allPosts: IPostData[];
@@ -27,23 +29,32 @@ const Posts: React.FC<IPosts> = ({ allPosts, userFollowing, postsLoading }) => {
 
   return (
     <div className="posts-container">
-      {posts.map((post) => {
-        return (
-          <div key={Utils.generateString(10)}>
-            {!Utils.checkIfUserIsBlocked(profile?.blockedBy, post.userId) ||
-              (post.userId === profile?._id && (
-                <>
-                  {PostUtils.checkPrivacy(post, profile, following) && (
-                    <>
-                      <Post post={post} showIcons={false} />
-                    </>
-                  )}
-                </>
-              ))}
-            <Post showIcons={false} post={post} />
+      {!loading &&
+        posts.length > 0 &&
+        posts.map((post) => {
+          return (
+            <div key={Utils.generateString(10)}>
+              {!Utils.checkIfUserIsBlocked(profile?.blockedBy, post.userId) ||
+                (post.userId === profile?._id && (
+                  <>
+                    {PostUtils.checkPrivacy(post, profile, following) && (
+                      <>
+                        <Post post={post} showIcons={true} />
+                      </>
+                    )}
+                  </>
+                ))}
+              <Post showIcons={true} post={post} />
+            </div>
+          );
+        })}
+      {loading &&
+        !posts.length &&
+        [1, 2, 3, 4, 5, 6, 7].map((index) => (
+          <div key={index}>
+            <PostSkeleton />
           </div>
-        );
-      })}
+        ))}
     </div>
   );
 };

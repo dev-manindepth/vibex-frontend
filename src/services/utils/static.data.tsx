@@ -1,10 +1,10 @@
 import { IFeelingData } from '@interfaces/index';
 import blessed from '../../assets/feelings/blessed.jpg';
 import excited from '../../assets/feelings/excited.jpg';
-import happy from '../../assets/feelings/happy.jpg';
+import happyFeeling from '../../assets/feelings/happy.jpg';
 import loved from '../../assets/feelings/loved.jpg';
 import angry from '../../assets/reactions/angry.png';
-import haha from '../../assets/reactions/happy.png';
+import happy from '../../assets/reactions/happy.png';
 import like from '../../assets/reactions/like.png';
 import love from '../../assets/reactions/love.png';
 import sad from '../../assets/reactions/sad.png';
@@ -81,7 +81,7 @@ export const feelingsList: IFeelingData[] = [
   {
     index: 0,
     name: 'happy',
-    image: happy
+    image: happyFeeling
   },
   {
     index: 1,
@@ -187,22 +187,22 @@ export const emptyPostData = {
   email: '',
   avatarColor: '',
   commentsCount: 0,
-  reactions: [],
+  reactions: { love: 0, like: 0, happy: 0, sad: 0, wow: 0, angry: 0 },
   imgVersion: '',
   imgId: '',
   createdAt: ''
 };
 
-export const reactionsMap = {
+export const reactionsMap: { [key: string]: string } = {
   like,
   love,
   wow,
   sad,
-  haha,
+  happy,
   angry
 };
 
-export const reactionsColor = {
+export const reactionsColor: { [key: string]: string } = {
   like: '#50b5ff',
   love: '#f33e58',
   angry: '#e9710f',

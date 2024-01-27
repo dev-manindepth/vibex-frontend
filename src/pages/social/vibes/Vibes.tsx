@@ -15,6 +15,8 @@ import { IPostData } from '@interfaces/index';
 import { getPosts } from '@redux-toolkit/api/posts';
 import useInfiniteScroll from '@hooks/useInfiniteScroll';
 import { PostUtils } from '@services/utils/post-utils.service';
+import useLocalStorage from '@hooks/useLocalStorage';
+import { addReactions } from '@redux-toolkit/reducers/post/user-post-reaction';
 
 const Vibes = () => {
   const bodyRef = useRef(null);
@@ -27,6 +29,8 @@ const Vibes = () => {
   const [posts, setPosts] = useState<IPostData[]>([]);
   const [totalPostsCount, setTotalPostsCount] = useState(0);
   const [loading, setLoading] = useState<boolean>(false);
+  const storedUsername = useLocalStorage('username', 'get');
+  const [deleteStoredPostId] = useLocalStorage('selectedPostId', 'remove');
   useInfiniteScroll(bodyRef, bottomLineRef, fetchPostData);
 
   const getAllPosts = async () => {
@@ -35,6 +39,8 @@ const Vibes = () => {
       if (response.data.posts.length) {
         appPosts.current = [...posts, ...response.data.posts];
         const allPosts = Utils.removeDuplicates(appPosts.current, '_id');
+        const orderedPost = Utils.orderBy(allPosts, ['createdAt'], ['desc']);
+        setPosts(orderedPost);
         setPosts(allPosts);
       }
       setLoading(false);
@@ -50,21 +56,33 @@ const Vibes = () => {
       getAllPosts();
     }
   }
+  const getReactionsByUsername = async () => {
+    try {
+      const response = await postService.getReactionsByUsername(storedUsername);
+      dispatch(addReactions(response.data.reactions));
+    } catch (error: any) {
+      Utils.dispatchNotification(error.response.data.message, 'error', dispatch);
+    }
+  };
   useEffectOnce(() => {
-    dispatch(getUserSuggestions());
+    getReactionsByUsername();
+    deleteStoredPostId();
   });
 
   useEffect(() => {
+    dispatch(getUserSuggestions());
     dispatch(getPosts());
   }, [dispatch]);
   useEffect(() => {
     setLoading(allPosts.isLoading);
-    setPosts(allPosts.posts);
+    const orderedPost = Utils.orderBy(allPosts.posts, ['createdAt'], ['desc']);
+    setPosts(orderedPost);
     setTotalPostsCount(allPosts.totalPostsCount);
   }, [allPosts]);
   useEffect(() => {
     PostUtils.soketIOPost(posts, setPosts);
   }, [posts, setPosts]);
+
   return (
     <div className="vibes">
       <div className="vibes-content">

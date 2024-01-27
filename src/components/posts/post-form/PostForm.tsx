@@ -10,6 +10,7 @@ import felling from '@assets/images/feeling.png';
 import { openModal, toggleFeelingModal, toggleGifModal, toggleImageModal } from '@redux-toolkit/reducers/modal/modal.reducer';
 import AddPost from '../post-modal/post-add/AddPost';
 import { ImageUtils } from '@services/utils/image-utils.service';
+import EditPost from '../post-modal/post-edit/EditPost';
 
 const PostForm = () => {
   const { profile } = useSelector((state: RootState) => state.user);
@@ -82,7 +83,8 @@ const PostForm = () => {
           </div>
         </div>
       </div>
-      {isOpen && type == 'add' && <AddPost selectedImage={selectedPostImage} />}
+      {isOpen && type === 'add' && <AddPost selectedImage={selectedPostImage} />}
+      {isOpen && type === 'edit' && <EditPost />}
     </>
   );
 };

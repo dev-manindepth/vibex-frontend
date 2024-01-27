@@ -170,7 +170,7 @@ export interface IPostData {
   email: string;
   avatarColor: string;
   commentsCount: number;
-  reactions: IReaction[];
+  reactions: IReactions;
   imgVersion: string;
   imgId: string;
   createdAt: string;
@@ -183,6 +183,8 @@ export interface IPostFormData {
   gifUrl: string | undefined;
   profilePicture: string | undefined;
   image: string;
+  imgId?: string;
+  imgVersion?: string;
 }
 export interface IFeelingData {
   index?: number;
@@ -194,4 +196,51 @@ export interface IPrivacy {
   topText: string;
   subText: string;
   icon: React.ReactNode;
+}
+
+export interface IReactionData {
+  _id?: string;
+  postId: string;
+  username?: string;
+  avatarColor?: string;
+  type: string;
+  profilePicture: string;
+  previousReaction?: string;
+  createdAt?: string;
+  userTo?: string;
+  comment?: string;
+}
+export interface IReactions {
+  like: number;
+  love: number;
+  happy: number;
+  wow: number;
+  sad: number;
+  angry: number;
+}
+export interface IReaction {
+  senderName: string;
+  type: string;
+}
+
+export interface IFormattedReaction {
+  type: string;
+  value: number;
+}
+export type OrderByIteratee<T> = ((item: T) => any) | keyof T | [keyof T, 'asc' | 'desc'];
+
+export interface ICommentData {
+  _id?: string;
+  username?: string;
+  avatarColor: string;
+  postId: string;
+  profilePicture: string;
+  comment: string;
+  commentsCount?: number;
+  createdAt?: Date;
+  userTo?: string;
+}
+export interface ICommentNameList {
+  count: number;
+  names: string[];
 }

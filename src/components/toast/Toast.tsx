@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import '@components/toast/Toast.scss';
-import { DeepCloneable, Utils } from '@services/utils/utils.service';
+import { Utils } from '@services/utils/utils.service';
 import { IToast, IToastData } from '@interfaces/index';
 import { useDispatch } from 'react-redux';
 

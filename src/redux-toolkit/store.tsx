@@ -6,6 +6,7 @@ import notificationReducer from '@redux-toolkit/reducers/notifications/notificat
 import modalReducer from '@redux-toolkit/reducers/modal/modal.reducer';
 import postReducer from './reducers/post/post.reducer';
 import postsReducer from './reducers/post/posts.reducer';
+import userPostReactionReducer from './reducers/post/user-post-reaction';
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
@@ -17,7 +18,8 @@ const store = configureStore({
     notifications: notificationReducer,
     modal: modalReducer,
     post: postReducer,
-    allPosts: postsReducer
+    allPosts: postsReducer,
+    userPostReactions: userPostReactionReducer
   }
 });
 

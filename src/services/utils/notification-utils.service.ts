@@ -27,12 +27,12 @@ export class NotificationUtils {
 
     socketService?.socket.on('update notification', (notificationId: string) => {
       notifications = JSON.parse(JSON.stringify(notifications));
-      const notificationData = notifications.find((notification) => notification._id == notificationId);
+      const notificationData = notifications.find((notification) => notification._id === notificationId);
       if (notificationData) {
-        const notificationIndex = notifications.findIndex((notification) => notification._id == notificationId);
+        const notificationIndex = notifications.findIndex((notification) => notification._id === notificationId);
         notificationData.read = true;
         notifications.splice(notificationIndex, 1, notificationData);
-        if (type == 'notificationPage') {
+        if (type === 'notificationPage') {
           setNotifications(notifications);
         } else {
           const mappedNotification =

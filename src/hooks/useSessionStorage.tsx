@@ -1,9 +1,9 @@
 const useSessionStorage = (key: any, type: 'get' | 'set' | 'remove') => {
   try {
-    if (type == 'get') {
+    if (type === 'get') {
       const item = window.sessionStorage.getItem(key);
       return item ? JSON.parse(item) : '';
-    } else if (type == 'set') {
+    } else if (type === 'set') {
       const setValue = (newValue: any) => {
         window.sessionStorage.setItem(key, JSON.stringify(newValue));
       };
