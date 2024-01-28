@@ -7,6 +7,7 @@ import { Suspense, lazy } from 'react';
 import VibesSkeleton from '@pages/social/vibes/VibesSkeleton';
 import Error from '@pages/error/Error';
 import NotificationsSkeleton from '@pages/social/notifications/NotificationsSkeleton';
+import CardSkeleton from '@components/card-element/CardSkeleton';
 
 const Social = lazy(() => import('@pages/social/Social'));
 const Chat = lazy(() => import('@pages/social/chat/Chat'));
@@ -58,7 +59,7 @@ export const AppRouter = () => {
         {
           path: 'people',
           element: (
-            <Suspense>
+            <Suspense fallback={<CardSkeleton />}>
               <People />
             </Suspense>
           )
