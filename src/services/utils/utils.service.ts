@@ -1,7 +1,7 @@
 import { addUser, clearUser } from '@redux-toolkit/reducers/user/user.reducer';
 import { avatarColors } from './static.data';
 import { APP_ENVIRONMENT } from '@services/axios';
-import { IReactions, ISettings, OrderByIteratee, ToastType } from '@interfaces/index';
+import { IReactions, ISettings, IUser, OrderByIteratee, ToastType } from '@interfaces/index';
 import { addNotifications, clearNotification } from '@redux-toolkit/reducers/notifications/notification.reducer';
 import { Dispatch } from '@reduxjs/toolkit';
 import millify from 'millify';
@@ -115,7 +115,7 @@ export class Utils {
   static checkIfUserIsBlocked(blocked: string[] | undefined, userId: string) {
     return blocked && blocked.some((blockedId) => blockedId === userId);
   }
-  static checkIfUserIsFollowed(userFolloweers: any[], postCreatorId: string, userId: string) {
+  static checkIfUserIsFollowed(userFolloweers: any[], postCreatorId?: string, userId?: string) {
     return userFolloweers.some((user) => user._id === postCreatorId || postCreatorId === userId);
   }
 
@@ -182,5 +182,9 @@ export class Utils {
 
       return 0;
     });
+  }
+
+  static checkIfUserIsOnline(username: string, onlineUsers: string[]) {
+    return onlineUsers.some((user) => user === username.toLowerCase());
   }
 }
