@@ -20,7 +20,7 @@ interface ICommentArea {
 const CommentArea: React.FC<ICommentArea> = ({ post }) => {
   const { profile } = useSelector((state: RootState) => state.user);
   let { reactions } = useSelector((state: RootState) => state.userPostReactions);
-  const [userSelectedReaction, setUserSelectedReaction] = useState('');
+  const [userSelectedReaction, setUserSelectedReaction] = useState('like');
   const selectedPostId = useLocalStorage('selectedPostId', 'get');
   const [setSelectedPostId] = useLocalStorage('selectedPostId', 'set');
 
@@ -29,7 +29,7 @@ const CommentArea: React.FC<ICommentArea> = ({ post }) => {
   const selectedUserReaction = useCallback(
     (reactions: IReactionData[]) => {
       const userReaction = reactions.find((reaction) => reaction.postId === post._id);
-      const reaction = userReaction ? Utils.firstLetterUpperCase(userReaction.type) : '';
+      const reaction = userReaction ? Utils.firstLetterUpperCase(userReaction.type) : 'Like';
       setUserSelectedReaction(reaction);
     },
     [post]
@@ -140,11 +140,6 @@ const CommentArea: React.FC<ICommentArea> = ({ post }) => {
               <div className={`reaction-display ${userSelectedReaction.toLowerCase()}`} data-testid="selected-reaction">
                 <img className="reaction-img" src={reactionsMap[userSelectedReaction.toLowerCase()]} alt="like" />
                 <span>{userSelectedReaction}</span>
-              </div>
-            )}
-            {!userSelectedReaction && (
-              <div className="reaction-display" data-testid="default-reaction">
-                <img className="reaction-img" src={reactionsMap['like']} alt="" /> <span>Like</span>
               </div>
             )}
           </div>

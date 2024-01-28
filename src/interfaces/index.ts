@@ -244,3 +244,37 @@ export interface ICommentNameList {
   count: number;
   names: string[];
 }
+export interface IFollowers {
+  userId: string;
+}
+
+export interface IFollow {
+  _id: string;
+  followerId: string;
+  followeeId: string;
+  createdAt?: Date;
+}
+
+export interface IFollower {
+  _id: string;
+  followeeId?: IFollowData;
+  followerId?: IFollowData;
+  createdAt?: Date;
+}
+
+export interface IFollowData {
+  avatarColor: string;
+  followersCount: number;
+  followingCount: number;
+  profilePicture: string;
+  postCount: number;
+  username: string;
+  uId: string;
+  _id?: string;
+  userProfile?: IUser;
+}
+
+export interface IBlockUnBlockUser {
+  blockedUser: string;
+  blockedBy: string;
+}
