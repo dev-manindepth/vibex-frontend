@@ -187,4 +187,10 @@ export class Utils {
   static checkIfUserIsOnline(username: string, onlineUsers: string[]) {
     return onlineUsers.some((user) => user === username.toLowerCase());
   }
+
+  static removeUserFromList(list: any[], userId: string) {
+    const index = list.findIndex((id) => id === userId);
+    list.splice(index, 1);
+    return list;
+  }
 }

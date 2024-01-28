@@ -2,13 +2,13 @@ import { IUser } from '@interfaces/index';
 import { NavigateFunction, createSearchParams } from 'react-router-dom';
 
 export class ProfileUtils {
-  static navigateToProfile(data: IUser | null, navigate: NavigateFunction) {
+  static navigateToProfile(userId: string, uId: string, username: string, navigate: NavigateFunction) {
     const searchParams = new URLSearchParams({
-      id: data?._id || '',
-      uId: data?.uId || ''
+      id: userId,
+      uId: uId
     });
 
-    const url = `/app/social/profile/${data?.username}?${searchParams.toString()}`;
+    const url = `/app/social/profile/${username}?${searchParams.toString()}`;
     navigate(url);
   }
 }

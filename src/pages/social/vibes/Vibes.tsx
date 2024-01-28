@@ -17,6 +17,7 @@ import useInfiniteScroll from '@hooks/useInfiniteScroll';
 import { PostUtils } from '@services/utils/post-utils.service';
 import useLocalStorage from '@hooks/useLocalStorage';
 import { addReactions } from '@redux-toolkit/reducers/post/user-post-reaction';
+import { followerService } from '@services/api/followers/follower.service';
 
 const Vibes = () => {
   const bodyRef = useRef(null);
@@ -27,6 +28,7 @@ const Vibes = () => {
   const dispatch = useDispatch<ThunkDispatch<RootState, unknown, PayloadAction>>();
   const allPosts = useSelector((state: RootState) => state.allPosts);
   const [posts, setPosts] = useState<IPostData[]>([]);
+  const [following, setFollowing] = useState([]);
   const [totalPostsCount, setTotalPostsCount] = useState(0);
   const [loading, setLoading] = useState<boolean>(false);
   const storedUsername = useLocalStorage('username', 'get');
@@ -64,15 +66,22 @@ const Vibes = () => {
       Utils.dispatchNotification(error.response.data.message, 'error', dispatch);
     }
   };
+  const getUserFollowing = async () => {
+    try {
+      const response = await followerService.getUserFollowing();
+      setFollowing(response.data.following);
+    } catch (error: any) {
+      Utils.dispatchNotification(error.response.data.message, 'error', dispatch);
+    }
+  };
   useEffectOnce(() => {
+    getUserFollowing();
     getReactionsByUsername();
     deleteStoredPostId();
-  });
-
-  useEffect(() => {
     dispatch(getUserSuggestions());
     dispatch(getPosts());
-  }, [dispatch]);
+  });
+
   useEffect(() => {
     setLoading(allPosts.isLoading);
     const orderedPost = Utils.orderBy(allPosts.posts, ['createdAt'], ['desc']);
@@ -88,7 +97,7 @@ const Vibes = () => {
       <div className="vibes-content">
         <div className="vibes-post" ref={bodyRef}>
           <PostForm />
-          <Posts allPosts={posts} postsLoading={loading} userFollowing={[]} />
+          <Posts allPosts={posts} postsLoading={loading} userFollowing={following} />
           <div ref={bottomLineRef} style={{ marginBottom: '50px', height: '50px' }}>
             P
           </div>

@@ -3,16 +3,30 @@ import Button from '@components/button/Button';
 import React, { useEffect, useState } from 'react';
 
 import '@components/suggestions/Suggestions.scss';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { IUser } from '@interfaces/index';
 import { useNavigate } from 'react-router-dom';
 import { RootState } from '@redux-toolkit/store';
+import { Utils } from '@services/utils/utils.service';
+import { FollowersUtils } from '@services/utils/followers-utils.service';
+import { addToSuggestions } from '@redux-toolkit/reducers/suggestions/suggestions.reducer';
 
 const Suggestions = () => {
-  const { isLoading, users } = useSelector((state: RootState) => state.suggestions);
+  const { users } = useSelector((state: RootState) => state.suggestions);
   const [suggestedUser, setSuggestedUser] = useState<IUser[]>([]);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
+  const followUser = async (userId: string) => {
+    try {
+      FollowersUtils.followUser(userId, dispatch);
+      const updatedUsers = suggestedUser.filter((user) => user._id !== userId);
+      setSuggestedUser(updatedUsers);
+      dispatch(addToSuggestions({ users: updatedUsers, isLoading: false }));
+    } catch (error: any) {
+      Utils.dispatchNotification(error.response.data.message, 'error', dispatch);
+    }
+  };
   useEffect(() => {
     setSuggestedUser(users);
   }, [suggestedUser, users]);
@@ -24,12 +38,12 @@ const Suggestions = () => {
       <hr />
       <div className="suggestions-container">
         <div className="suggestions">
-          {suggestedUser.map((user, index) => (
-            <div data-testid="suggestions-item" className="suggestions-item" key={index}>
+          {suggestedUser.map((user) => (
+            <div data-testid="suggestions-item" className="suggestions-item" key={user._id}>
               <Avatar name={user?.username} bgColor={user?.avatarColor} textColor="#ffffff" size={40} avatarSrc={user?.profilePicture} />
               <div className="title-text">{user?.username}</div>
               <div className="add-icon">
-                <Button label="Follow" className="button follow" disabled={false} />
+                <Button label="Follow" className="button follow" disabled={false} handleClick={() => followUser(user._id)} />
               </div>
             </div>
           ))}
