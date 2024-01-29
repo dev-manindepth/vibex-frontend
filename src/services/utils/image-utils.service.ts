@@ -64,14 +64,8 @@ export class ImageUtils {
 
         const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
         const params = imageData.data;
-        console.log(params);
-        const [red, green, blue] = params;
-        const bgColor = ImageUtils.convertRGBToHex(red, green, blue);
+        const bgColor = ImageUtils.convertRGBToHex(params[0], params[1], params[2]);
         resolve(bgColor);
-      });
-      image.addEventListener('error', (event) => {
-        const errorMessage = `Error loading image: ${imageUrl}`;
-        reject(errorMessage);
       });
       image.src = imageUrl;
     });

@@ -59,5 +59,9 @@ class PostService {
     const response = await axios.get(`/post/comment/${postId}`);
     return response;
   }
+  async getPostWithImages(page: number) {
+    const response = await axios.get(`/post/images/${page}`);
+    return response;
+  }
 }
 export const postService = new PostService();
