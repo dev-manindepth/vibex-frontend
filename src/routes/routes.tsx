@@ -8,6 +8,7 @@ import VibesSkeleton from '@pages/social/vibes/VibesSkeleton';
 import Error from '@pages/error/Error';
 import NotificationsSkeleton from '@pages/social/notifications/NotificationsSkeleton';
 import CardSkeleton from '@components/card-element/CardSkeleton';
+import PhotoSkeleton from '@pages/social/photos/PhotoSkeleton';
 
 const Social = lazy(() => import('@pages/social/Social'));
 const Chat = lazy(() => import('@pages/social/chat/Chat'));
@@ -83,7 +84,7 @@ export const AppRouter = () => {
         {
           path: 'photos',
           element: (
-            <Suspense>
+            <Suspense fallback={<PhotoSkeleton />}>
               <Photos />
             </Suspense>
           )
