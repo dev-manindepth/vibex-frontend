@@ -2,7 +2,7 @@ import Avatar from '@components/avatar/Avatar';
 import { IPostData } from '@interfaces/index';
 import DateTimeUtil from '@services/utils/date-time.service';
 import { emptyPostData, feelingsList, privacyList } from '@services/utils/static.data';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaPencilAlt, FaRegTrashAlt } from 'react-icons/fa';
 import '@components/posts/post/Post.scss';
 import PostCommentSection from '@components/comments/post-comment-section/PostCommentSection';
@@ -18,6 +18,7 @@ import { openModal, toggleDeleteDialog } from '@redux-toolkit/reducers/modal/mod
 import { clearPost, updatePostItem } from '@redux-toolkit/reducers/post/post.reducer';
 import Dialog from '@components/dialog/Dialog';
 import { postService } from '@services/api/post/post.service';
+import { ImageUtils } from '@services/utils/image-utils.service';
 
 interface IPost {
   post: IPostData;
@@ -28,6 +29,7 @@ const Post: React.FC<IPost> = ({ post, showIcons }) => {
   const { _id } = useSelector((state: RootState) => state.post);
   const [showImageModal, setShowImageModal] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
+  const [backgroundImageColor, setBackgroundImageColor] = useState('');
   const selectedPostId = useLocalStorage('selectedPostId', 'get');
   const dispatch = useDispatch();
 
@@ -59,6 +61,19 @@ const Post: React.FC<IPost> = ({ post, showIcons }) => {
       Utils.dispatchNotification(error.response.data.message, 'error', dispatch);
     }
   };
+  const getBackgroundImageColor = async (post: IPostData) => {
+    let imageUrl = '';
+    if (post.imgId && !post.gifUrl && post.bgColor === '#ffffff') {
+      imageUrl = Utils.getImage(post.imgId, post.imgVersion);
+    } else if (post.gifUrl && post.bgColor === '#ffffff') {
+      imageUrl = post.gifUrl;
+    }
+    const bgColor = (await ImageUtils.getBackgroundColor(imageUrl)) as string;
+    setBackgroundImageColor(bgColor);
+  };
+  useEffect(() => {
+    getBackgroundImageColor(post);
+  }, [post]);
   return (
     <>
       {reactionModalIsOpen && <ReactionModal />}
@@ -127,8 +142,14 @@ const Post: React.FC<IPost> = ({ post, showIcons }) => {
                     setImageUrl(Utils.getImage(post.imgId, post.imgVersion));
                     setShowImageModal(!showImageModal);
                   }}
+                  style={{ height: '600px', backgroundColor: `${backgroundImageColor}` }}
                 >
-                  <img className="post-image" src={`${Utils.getImage(post.imgId, post.imgVersion)}`} alt="" />
+                  <img
+                    className="post-image"
+                    src={`${Utils.getImage(post.imgId, post.imgVersion)}`}
+                    alt=""
+                    style={{ objectFit: 'contain' }}
+                  />
                 </div>
               )}
 
@@ -139,8 +160,9 @@ const Post: React.FC<IPost> = ({ post, showIcons }) => {
                     setImageUrl(post.gifUrl);
                     setShowImageModal(!showImageModal);
                   }}
+                  style={{ height: '600px', backgroundColor: `${backgroundImageColor}` }}
                 >
-                  <img className="post-image" src={`${post?.gifUrl}`} alt="" />
+                  <img className="post-image" src={`${post?.gifUrl}`} alt="" style={{ objectFit: 'contain' }} />
                 </div>
               )}
               {(post?.reactions || post?.commentsCount > 0) && <hr />}

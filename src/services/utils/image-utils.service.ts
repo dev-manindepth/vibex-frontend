@@ -50,4 +50,44 @@ export class ImageUtils {
     });
     return fileValue;
   }
+
+  static getBackgroundColor(imageUrl: string) {
+    const image = new Image();
+    image.crossOrigin = 'Anonymous';
+    const backgroundImageColor = new Promise((resolve, reject) => {
+      image.addEventListener('load', () => {
+        const canvas = document.createElement('canvas') as HTMLCanvasElement;
+        const context = canvas.getContext('2d') as CanvasRenderingContext2D;
+        canvas.width = image.width;
+        canvas.height = image.height;
+        context.drawImage(image, 0, 0);
+
+        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        const params = imageData.data;
+        console.log(params);
+        const [red, green, blue] = params;
+        const bgColor = ImageUtils.convertRGBToHex(red, green, blue);
+        resolve(bgColor);
+      });
+      image.addEventListener('error', (event) => {
+        const errorMessage = `Error loading image: ${imageUrl}`;
+        reject(errorMessage);
+      });
+      image.src = imageUrl;
+    });
+    return backgroundImageColor;
+  }
+  static convertRGBToHex(red: number, green: number, blue: number) {
+    red = Math.min(255, Math.max(0, red));
+    green = Math.min(255, Math.max(0, green));
+    blue = Math.min(255, Math.max(0, blue));
+
+    const redHex = red.toString(16).padStart(2, '0');
+    const greenHex = green.toString(16).padStart(2, '0');
+    const blueHex = blue.toString(16).padStart(2, '0');
+
+    const hexColor = `#${redHex}${greenHex}${blueHex}`;
+
+    return hexColor.toUpperCase();
+  }
 }
