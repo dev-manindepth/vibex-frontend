@@ -11,8 +11,8 @@ import React from 'react';
 interface IMessageSidebar {
   profile: IUser | null;
   messageCount: number;
-  messageNotifications: IMessageData[];
-  openChatPage: () => void;
+  messageNotifications: Partial<IMessageData>[];
+  openChatPage: (notification: Partial<IMessageData>) => Promise<void>;
 }
 const MessageSidebar: React.FC<IMessageSidebar> = ({ profile, messageCount, messageNotifications, openChatPage }) => {
   return (
@@ -29,7 +29,7 @@ const MessageSidebar: React.FC<IMessageSidebar> = ({ profile, messageCount, mess
           <div className="message-card-body-info">
             <div data-testid="info-container" className="message-card-body-info-container">
               {messageNotifications.map((notification) => (
-                <div className="message-sub-card" key={Utils.generateString(10)} onClick={() => openChatPage()}>
+                <div className="message-sub-card" key={Utils.generateString(10)} onClick={() => openChatPage(notification!)}>
                   <div className="content-avatar">
                     <Avatar
                       name={notification.receiverUsername === profile?.username ? profile?.username : notification?.senderUsername}

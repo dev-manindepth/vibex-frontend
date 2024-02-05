@@ -278,3 +278,84 @@ export interface IBlockUnBlockUser {
   blockedUser: string;
   blockedBy: string;
 }
+export interface IMessageBody {
+  conversationId: string;
+  receiverId: string;
+  receiverUsername: string;
+  receiverAvatarColor: string;
+  receiverProfilePicture: string;
+  body: any;
+  gifUrl: string;
+  isRead: boolean;
+  selectedImage: string;
+}
+export interface IUpdateChatReactionBody {
+  conversationId: string;
+  messageId: string;
+  reaction: string;
+  type: string;
+}
+export interface AuthPayload {
+  userId: string;
+  uId: string;
+  email: string;
+  username: string;
+  avatarColor: string;
+  iat?: number;
+}
+export interface IMessageNotification {
+  currentUser: AuthPayload;
+  message: string;
+  receiverName: string;
+  receiverId: string;
+  messageData: IMessageData;
+}
+
+export interface IChatUsers {
+  sender: string;
+  receiver: string;
+}
+
+export interface IChatList {
+  receiverId: string;
+  conversationId: string;
+}
+
+export interface ITyping {
+  sender: string;
+  receiver: string;
+}
+
+export interface ISenderReceiver {
+  senderId: string;
+  receiverId: string;
+  senderName: string;
+  receiverName: string;
+}
+
+export interface IConversationDocument {
+  _id: string;
+  senderId: string;
+  receiverId: string;
+}
+
+export interface ISearchUser {
+  _id: string;
+  profilePicture: string;
+  username: string;
+  email: string;
+  avatarColor: string;
+}
+export interface IJoinRoom {
+  receiverId: string;
+  receiverName: string;
+  profileId: string;
+  profileUsername: string;
+}
+
+export interface ISelectedReaction {
+  conversationId: string;
+  messageId: string;
+  reaction: string;
+  type: string;
+}

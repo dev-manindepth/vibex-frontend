@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@loadable/component": "^5.16.3",
     "@reduxjs/toolkit": "^2.0.1",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
@@ -13,6 +14,7 @@
     "@types/react-dom": "^18.2.14",
     "axios": "^1.6.2",
     "date-fns": "^3.2.0",
+    "emoji-picker-react": "^3.6.1",
     "millify": "^6.1.0",
     "react": "^18.2.0",
     "react-app-rewired": "^2.2.1",
@@ -58,6 +60,7 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@types/loadable__component": "^5.13.8",
     "@types/react-router-dom": "^5.3.3",
     "eslint": "^8.52.0",
     "eslint-config-prettier": "^9.0.0",

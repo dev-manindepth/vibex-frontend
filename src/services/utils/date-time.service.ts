@@ -1,8 +1,22 @@
-import { format } from 'date-fns';
+import { format, getISODay, getISOWeek, isSameDay, subDays } from 'date-fns';
 class DateTimeUtil {
   static transform(value: string | Date) {
     const date = typeof value === 'string' ? new Date(value) : value;
     return this.prototype.timeDifference(new Date(), new Date(date));
+  }
+
+  static chatMessageTransform(value: string | Date) {
+    const date = typeof value === 'string' ? new Date(value) : value;
+    const yesterday = subDays(new Date(), 1);
+    if (isSameDay(date, new Date())) {
+      return 'Today';
+    } else if (isSameDay(date, yesterday)) {
+      return 'Yesterday';
+    } else if (getISODay(new Date()) === getISOWeek(date) || getISOWeek(new Date()) - getISOWeek(date) === 1) {
+      return format(date, 'EEEE');
+    } else {
+      return format(date, 'd MMMM yyyy');
+    }
   }
   static dayMonthYear(value: string | Date) {
     const date = typeof value === 'string' ? new Date(value) : value;

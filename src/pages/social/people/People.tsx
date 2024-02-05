@@ -16,6 +16,7 @@ import { RootState } from '@redux-toolkit/store';
 import { socketService } from '@services/socket/socket.service';
 import { FollowersUtils } from '@services/utils/followers-utils.service';
 import { followerService } from '@services/api/followers/follower.service';
+import { ChatUtils } from '@services/utils/chat-utils.service';
 
 const People = () => {
   const { profile } = useSelector((state: RootState) => state.user);
@@ -92,6 +93,7 @@ const People = () => {
   });
   useEffect(() => {
     FollowersUtils.socketIOFollowAndUnFollow(users, following, setFollowing, setUsers);
+    ChatUtils.usersOnline(setOnlineUsers);
   });
   return (
     <div className="card-container" ref={bodyRef}>

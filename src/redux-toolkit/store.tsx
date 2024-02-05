@@ -7,6 +7,7 @@ import modalReducer from '@redux-toolkit/reducers/modal/modal.reducer';
 import postReducer from './reducers/post/post.reducer';
 import postsReducer from './reducers/post/posts.reducer';
 import userPostReactionReducer from './reducers/post/user-post-reaction';
+import chatReducer from './reducers/chat/chat.reducer';
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
@@ -19,7 +20,8 @@ const store = configureStore({
     modal: modalReducer,
     post: postReducer,
     allPosts: postsReducer,
-    userPostReactions: userPostReactionReducer
+    userPostReactions: userPostReactionReducer,
+    chat: chatReducer
   }
 });
 
