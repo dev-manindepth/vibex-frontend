@@ -2,6 +2,7 @@ import useEffectOnce from '@hooks/useEffectOnce';
 import useLocalStorage from '@hooks/useLocalStorage';
 import useSessionStorage from '@hooks/useSessionStorage';
 import { IUser } from '@interfaces/index';
+import { getConversationList } from '@redux-toolkit/api/chat';
 import { addUser } from '@redux-toolkit/reducers/user/user.reducer';
 import { RootState } from '@redux-toolkit/store';
 import { userService } from '@services/api/user/user.service';
@@ -26,6 +27,7 @@ const ProtectedRoute: React.FC<{ children: ReactNode }> = ({ children }) => {
     try {
       const response = await userService.checkCurrentUser();
       setUserData(response.data.user);
+      dispatch(getConversationList() as any);
       setTokenIsValid(true);
       dispatch(addUser({ token: response.data.token, profile: response.data.user }));
     } catch (err) {

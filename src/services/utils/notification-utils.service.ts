@@ -1,8 +1,9 @@
-import { ICommentUser, INotificationDialog, INotifications, IUser } from '@interfaces/index';
+import { ICommentUser, IMessageData, INotificationDialog, INotifications, IUser } from '@interfaces/index';
 import { notificationService } from '@services/api/notifications/notification.service';
 import { socketService } from '@services/socket/socket.service';
 import { Utils } from './utils.service';
 import DateTimeUtil from './date-time.service';
+import { Dispatch } from '@reduxjs/toolkit';
 
 export class NotificationUtils {
   static socketIONofication(
@@ -112,5 +113,51 @@ export class NotificationUtils {
       setNotificationDialogContent(notificationDialog);
     }
     await notificationService.markNotificationAsRead(messageId);
+  }
+  static socketIOMessageNotification(
+    profile: IUser,
+    messageNotifications: Partial<IMessageData>[],
+    setMessageNotifications: (messageNotification: Partial<IMessageData>[]) => void,
+    setMessageCount: (messageCount: number) => void,
+    dispatch: Dispatch,
+    location: Location
+  ) {
+    socketService.socket.on('chat list', (data: IMessageData) => {
+      messageNotifications = JSON.parse(JSON.stringify(messageNotifications));
+      if (data.receiverUsername === profile.username) {
+        const notificationData = {
+          senderId: data.senderId,
+          senderUsername: data.senderUsername,
+          senderAvatarColor: data.senderAvatarColor,
+          senderProfilePicture: data.senderProfilePicture,
+          receiverId: data.receiverId,
+          receiverUsername: data.receiverUsername,
+          receiverAvatarColor: data.receiverAvatarColor,
+          receiverProfilePicture: data.receiverProfilePicture,
+          messageId: data._id,
+          conversationId: data.conversationId,
+          body: data.body,
+          isRead: data.isRead
+        };
+        const messageIndex = messageNotifications.findIndex((notification) => notification.conversationId === data.conversationId);
+        if (messageIndex > -1) {
+          messageNotifications = messageNotifications.filter((notificationData) => notificationData.conversationId !== data.conversationId);
+          messageNotifications = [notificationData, ...messageNotifications];
+        } else {
+          messageNotifications = [notificationData, ...messageNotifications];
+        }
+        const count = messageNotifications.reduce((sum, notification) => {
+          if (!notification.isRead) {
+            return sum + 1;
+          }
+          return sum;
+        }, 0);
+        if (!Utils.checkUrl(location.pathname, '/chat/')) {
+          Utils.dispatchNotification('You have a new message', 'success', dispatch);
+        }
+        setMessageCount(count);
+        setMessageNotifications(messageNotifications);
+      }
+    });
   }
 }

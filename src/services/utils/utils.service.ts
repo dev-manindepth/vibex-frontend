@@ -47,11 +47,11 @@ export class Utils {
     deleteSessionPageReload: () => void;
     setLoggedIn: (value: boolean) => void;
   }) {
-    dispatch(clearUser());
     dispatch(clearNotification());
     deleteStorageUsername();
     deleteSessionPageReload();
     setLoggedIn(false);
+    dispatch(clearUser());
   }
 
   static dispatchNotification(message: string, type: ToastType, dispatch: Dispatch) {
@@ -192,5 +192,9 @@ export class Utils {
     const index = list.findIndex((id) => id === userId);
     list.splice(index, 1);
     return list;
+  }
+
+  static checkUrl(url: string, word: string) {
+    return url.includes(word);
   }
 }

@@ -7,19 +7,19 @@ import { addToSuggestions } from '@redux-toolkit/reducers/suggestions/suggestion
 import { addUser } from '@redux-toolkit/reducers/user/user.reducer';
 
 export class FollowersUtils {
-  static async followUser(userId:string, dispatch: Dispatch) {
+  static async followUser(userId: string, dispatch: Dispatch) {
     const response = await followerService.followUser(userId);
     Utils.dispatchNotification(response.data.message, 'success', dispatch);
   }
-  static async unFollowUser(userId:string, dispatch: Dispatch) {
+  static async unFollowUser(userId: string, dispatch: Dispatch) {
     const response = await followerService.unFollowUser(userId);
     Utils.dispatchNotification(response.data.message, 'success', dispatch);
   }
-  static async blockUser(userId:string, dispatch: Dispatch) {
+  static async blockUser(userId: string, dispatch: Dispatch) {
     const response = await followerService.blockUser(userId);
     Utils.dispatchNotification(response.data.message, 'success', dispatch);
   }
-  static async unBlockUser(userId:string, dispatch: Dispatch) {
+  static async unBlockUser(userId: string, dispatch: Dispatch) {
     const response = await followerService.unBlockUser(userId);
     Utils.dispatchNotification(response.data.message, 'success', dispatch);
   }
@@ -48,7 +48,6 @@ export class FollowersUtils {
       }
     });
   }
-
 
   static socketIORemoveFollowing(following: IFollowData[], setFollowing: (following: IFollowData[]) => void) {
     socketService.socket.on('remove follower', (data: IFollowers) => {

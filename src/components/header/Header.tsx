@@ -10,9 +10,9 @@ import { RootState } from '@redux-toolkit/store';
 import Avatar from '@components/avatar/Avatar';
 import Dropdown from '@components/dropdown/Dropdown';
 import useEffectOnce from '@hooks/useEffectOnce';
-import { INotificationDialog, INotifications, ISettings } from '@interfaces/index';
+import { IMessageData, INotificationDialog, INotifications, ISettings } from '@interfaces/index';
 import { ProfileUtils } from '@services/utils/profile-utils.service';
-import { useNavigate } from 'react-router-dom';
+import { createSearchParams, useNavigate } from 'react-router-dom';
 import useLocalStorage from '@hooks/useLocalStorage';
 import useSessionStorage from '@hooks/useSessionStorage';
 import { userService } from '@services/api/user/user.service';
@@ -21,13 +21,19 @@ import { notificationService } from '@services/api/notifications/notification.se
 import { NotificationUtils } from '@services/utils/notification-utils.service';
 import NotificationPreview from '@components/notification-preview/NotificationPreview';
 import { socketService } from '@services/socket/socket.service';
+import { ChatUtils } from '@services/utils/chat-utils.service';
+import { chatService } from '@services/api/chat/chat.service';
+import { getConversationList } from '@redux-toolkit/api/chat';
 
 const Header = () => {
   const { profile } = useSelector((state: RootState) => state.user);
+  const { chatList } = useSelector((state: RootState) => state.chat);
   const [environment, setEnvironment] = useState<string | null | undefined>('');
   const messageRef = useRef(null);
   const notificationRef = useRef(null);
   const settingRef = useRef(null);
+  const [messageCount, setMessageCount] = useState(0);
+  const [messageNotification, setMessageNotifications] = useState<Partial<IMessageData>[]>([]);
   const [isMessageActive, setIsMessageActive] = useDetectOutsideClick({ ref: messageRef, initialState: false });
   const [isNotificationActive, setIsNotificationActive] = useDetectOutsideClick({ ref: notificationRef, initialState: false });
   const [notifications, setNotifications] = useState<INotifications[]>([]);
@@ -75,7 +81,26 @@ const Header = () => {
     }
   };
 
-  const openChatPage = () => {};
+  const openChatPage = async (notification: Partial<IMessageData>) => {
+    try {
+      const params = ChatUtils.chatUrlParams(notification, profile!);
+      ChatUtils.joinRoomEvent(notification, profile!);
+      ChatUtils.privateChatMessages = [];
+      const receiverId = notification.receiverUsername !== profile?.username ? notification.receiverId : notification.senderId;
+      console.log('profile', profile);
+      if (notification.receiverUsername === profile?.username && !notification.isRead) {
+        await chatService.markMessagesAsRead(profile!._id, receiverId!);
+      }
+      const receiverUsername =
+        notification.receiverUsername !== profile?.username ? notification.receiverUsername : notification.senderUsername;
+      await chatService.addChatUsers({ sender: profile?.username!, receiver: receiverUsername! });
+      navigate(`/app/social/chat/messages?${createSearchParams(params)}`);
+      setIsMessageActive(false);
+      dispatch(getConversationList() as any);
+    } catch (error: any) {
+      Utils.dispatchNotification(error.response.data.message, 'error', dispatch);
+    }
+  };
   const onLogout = async () => {
     try {
       setLoggedIn(false);
@@ -90,13 +115,30 @@ const Header = () => {
   useEffect(() => {
     const env = Utils.appEnvironment();
     setEnvironment(env);
-  }, []);
+    const count = chatList.reduce((sum, notification) => {
+      if (!notification.isRead && notification.receiverUsername === profile!.username) {
+        return sum + 1;
+      }
+      return sum;
+    }, 0);
+
+    setMessageCount(count);
+    setMessageNotifications(chatList);
+  }, [profile, notifications, location, dispatch, messageNotification]);
   useEffectOnce(() => {
     Utils.mapSettingsDropdownItems(setSettings);
     getUserNotifications();
   });
   useEffect(() => {
     NotificationUtils.socketIONofication(profile!, notifications, setNotifications, 'header', setNotificationCount);
+    NotificationUtils.socketIOMessageNotification(
+      profile!,
+      messageNotification,
+      setMessageNotifications,
+      setMessageCount,
+      dispatch,
+      location
+    );
   }, [profile, notifications]);
   return (
     <>
@@ -106,7 +148,12 @@ const Header = () => {
         <div className="header-nav-wrapper" data-testid="header-wrapper">
           {isMessageActive && (
             <div ref={messageRef}>
-              <MessageSidebar messageCount={0} openChatPage={openChatPage} profile={profile} messageNotifications={[]} />
+              <MessageSidebar
+                messageCount={messageCount}
+                openChatPage={openChatPage}
+                profile={profile}
+                messageNotifications={messageNotification}
+              />
             </div>
           )}
           {notificationDialogContent?.senderName && (
@@ -180,7 +227,7 @@ const Header = () => {
               >
                 <span className="header-list-name">
                   <FaRegEnvelope className="header-list-icon" />
-                  <span className="bg-danger-dots dots" data-testid="messages-dots"></span>
+                  {messageCount > 0 && <span className="bg-danger-dots dots" data-testid="messages-dots"></span>}
                 </span>
                 &nbsp;
               </li>
@@ -212,7 +259,7 @@ const Header = () => {
                         height={300}
                         style={{ right: '150px', top: '40px' }}
                         data={settings}
-                        notificationCount={0}
+                        notificationCount={notificationCount}
                         title={'Settings'}
                         onLogout={onLogout}
                         onNavigate={() => ProfileUtils.navigateToProfile(profile._id, profile.uId!, profile.username!, navigate)}
